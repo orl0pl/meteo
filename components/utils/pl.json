@@ -1,0 +1,41 @@
+{
+    "translation": {
+        "secondmessage": {
+            "raining": "Pada deszcz",
+            "itwillrain": "Będzie padać za {{time, string}}",
+            "goodWeather": "Ciesz się tą pogodą przez 2 dni.",
+            "badWeather": "Nie będzie padać przez 2 dni."
+        },
+        "pti": "PT",
+        "title": {
+            "rain": "Deszcz",
+            "today_and_tommorow": "Dzisiaj i jutro",
+            "current_parameters": "Aktualne parametry",
+            "searching_city": "Wyszukiwanie miasta: ",
+            "updated": "Zaaktualizowano {{time}} używając OpenWeatherMap API",
+            "location": "Lokalizacja: {{lat}}°N, {{lon}}°E"
+        },
+        "parameters": {
+            "wind": "Wiatr",
+            "temperature": "Temperatura",
+            "feels_like": "Temperatura odczuwalna",
+            "uvi": "Indeks UV",
+            "pressure": "Ciśnienie",
+            "dew_point": "Punkt rosy",
+            "wind_gust": "Porywy wiatru",
+            "humidity": "Wilgotność",
+            "visibility": "Widoczność",
+            "sunrise": "Wschód słońca",
+            "sunset": "Zachód słońca",
+            "morning": "Poranek",
+            "day": "Dzień",
+            "night": "Noc",
+            "goodView": "Dobry widok"
+        },
+        "navigation": {
+            "current": "Teraz",
+            "hourly": "Godzinowo",
+            "daily": "Dziennie"
+        }
+    }
+}

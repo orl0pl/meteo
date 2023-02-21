@@ -1,0 +1,41 @@
+{
+    "translation": {
+        "secondmessage": {
+            "raining": "It's raining",
+            "itwillrain": "It will rain in {{time}}",
+            "goodWeather": "Enjoy this weather all 2 days.",
+            "badWeather": "It's not raining for 2 days."
+        },
+        "pti": "PTI",
+        "title": {
+            "rain": "Rain",
+            "today_and_tommorow": "Today and tomorrow",
+            "current_parameters": "Current parameters",
+            "searching_city": "Searching city: ",
+            "updated": "Updated {{time}} using OpenWeatherMap API",
+            "location": "Location: {{lat}}°N, {{lon}}°E"
+        },
+        "parameters": {
+            "wind": "Wind",
+            "temperature": "Temperature",
+            "feels_like": "Feels like",
+            "uvi": "UV Index",
+            "pressure": "Pressure",
+            "dew_point": "Dew point",
+            "wind_gust": "Wind gust",
+            "humidity": "Humidity",
+            "visibility": "Visibility",
+            "sunrise": "Sunrise",
+            "sunset": "Sunset",
+            "morning": "Morning",
+            "day": "Day",
+            "night": "Night",
+            "goodView": "Good View"
+        },
+        "navigation": {
+            "current": "Current",
+            "hourly": "Hourly",
+            "daily": "Daily"
+        }
+    }
+}
