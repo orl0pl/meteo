@@ -36,9 +36,9 @@ function TopCurrent({ weather, theme, weatherIcon, weatherIconColor, t }) {
                 style={{ flex: 0 }}
                 size={128}
             />
-            <View style={{ flex: 1, alignItems: "center" }}>
+            <View style={{ flex: 1, alignItems: "center", marginLeft: 4}}>
                 <View style={{ flex: 1, alignItems: "center" }}>
-                    <Text variant="headlineSmall">
+                    <Text variant="headlineSmall" style={{textAlign: "center"}}>
                         {weather.current.weather[0].description !== undefined
                             ? weather.current.weather[0].description
                             : ""}

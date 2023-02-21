@@ -57,7 +57,7 @@ export default function App() {
 		//console.log(`https://api.openweathermap.org/data/2.5/onecall?lat=${location.coords.latitude}&lon=${location.coords.longitude}&appid=${API_KEY}`)
 		axios
 			.get(
-				`https://api.openweathermap.org/data/2.5/onecall?lat=${location.coords.latitude}&lon=${location.coords.longitude}&appid=${API_KEY}`
+				`https://api.openweathermap.org/data/2.5/onecall?lat=${location.coords.latitude}&lon=${location.coords.longitude}&lang=${Localization.locale.slice(0,2)}&appid=${API_KEY}`
 			)
 			.then((response) => setWeather(response.data))
 			.catch((error) => console.log(error));
@@ -154,7 +154,7 @@ export default function App() {
 						}}
 					>
 						<Searchbar
-							placeholder="Search city..."
+							placeholder={i18next.t("search")}
 							onChangeText={(text) => setSearch(text)}
 							value={search}
 							elevation={0}
