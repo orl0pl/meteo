@@ -9,7 +9,7 @@ import { FlexiCard } from "./components/Cards";
 import moment from "moment";
 import "moment/min/locales";
 import * as Localization from "expo-localization";
-import { RainBar, RainComponent, UmbrellaIconReactive } from "./components/Bars";
+import { RainComponent, UmbrellaIconReactive } from "./components/Bars";
 moment.locale(Localization.locale.slice(0,2));
 /**
  * @param {number} temp temperature in celsius

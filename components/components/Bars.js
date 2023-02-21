@@ -1,7 +1,7 @@
 import React from "react";
 import { View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Text } from "react-native-paper"
+import { Text } from "react-native-paper";
 function Bar(props) {
     return (
         <View

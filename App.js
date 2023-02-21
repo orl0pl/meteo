@@ -1,27 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Text, View, ScrollView, ToastAndroid } from "react-native";
+import { View, ToastAndroid } from "react-native";
 import { createMaterialBottomTabNavigator as createBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Storage } from 'expo-storage'
+import { Storage } from 'expo-storage';
 import {
-	IconButton,
 	Provider,
-	Searchbar,
-	useTheme,
-	MD3DarkTheme,
-	MD3LightTheme,
+	Searchbar, MD3LightTheme
 } from "react-native-paper";
 import CurrentScreen from "./components/CurrentScreen";
 import DailyScreen from "./components/DailyScreen";
 import HourlyScreen from "./components/HourlyScreen";
 import * as Location from "expo-location";
-import exampleResponse from "./exampleresponse.js";
-const pl = require('./components/utils/pl.json');
-const en = require('./components/utils/en.json');
 import axios from "axios";
 import * as Localization from 'expo-localization';
 import i18next from 'i18next';
+const pl = require('./components/utils/pl.json');
+const en = require('./components/utils/en.json');
 i18next.init({
 	compatibilityJSON: 'v3',
 	lng: Localization.locale,
