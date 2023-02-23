@@ -3,60 +3,15 @@ import { View, ScrollView, StyleSheet } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import iconMap from "./iconMap";
 import { Text, ActivityIndicator, Divider, MD3LightTheme } from "react-native-paper";
-import { calculatePTI } from "./utils/PTI";
+import { calculatePTI, calculatePTIOWM } from "./utils/PTI";
 import TopCurrent from "./components/TopCurrent";
 import { FlexiCard } from "./components/Cards";
 import moment from "moment";
 import "moment/min/locales";
 import * as Localization from "expo-localization";
 import { RainComponent, UmbrellaIconReactive } from "./components/Bars";
-moment.locale(Localization.locale.slice(0,2));
-/**
- * @param {number} temp temperature in celsius
- * @param {number} humidity humidity in percentage
- * @param {number} windSpeed wind speed in m/s
- * @param {number} age age in years
- * @param {string} gender gender
- * @return {number} PTI (Personal Temperature Index)
- */
-function calculatePersonalTempIndex(
-	temp = 20,
-	humidity = 70,
-	windSpeed = 10,
-	age = 30,
-	gender = "male" || "female",
-	weight = 80,
-	height = 180,
-	activityLevel = 2
-) {
-	// Calculate baseline temperature index based on personal factors
-	let baselineIndex = 20;
-	baselineIndex += age / 60;
-	baselineIndex += gender === "male" ? 1 : 0;
-	baselineIndex -= weight / 50;
-	baselineIndex -= height <= 160 ? Math.floor((160 - height) / 10) : 0;
-	baselineIndex += activityLevel;
-	const heatIndex = (tempCelsius, humidity) =>
-		tempCelsius >= 26
-			? -8.78469475556 +
-			  1.61139411 * tempCelsius +
-			  2.33854883889 * humidity -
-			  0.14611605 * tempCelsius * humidity -
-			  0.012308094 * tempCelsius ** 2 -
-			  0.0164248277778 * humidity ** 2 +
-			  0.002211732 * tempCelsius ** 2 * humidity +
-			  0.00072546 * tempCelsius * humidity ** 2 -
-			  0.000003582 * tempCelsius ** 2 * humidity ** 2
-			: tempCelsius;
-	baselineIndex += temp >= 26 ? heatIndex / 10 : 0;
-	// Adjust for external factors
-	baselineIndex -= Math.floor(humidity / 80);
-	baselineIndex -= Math.floor(windSpeed / 15);
-
-	// Calculate final personal temperature index
-	let personalIndex = baselineIndex + (temp - 20) / 5;
-	return personalIndex;
-}
+//TODO: Add weather alerts
+moment.locale(Localization.locale.slice(0, 2));
 
 export default function CurrentScreen({ weather, location, t }) {
 	//const theme = useTheme();
@@ -160,10 +115,11 @@ export default function CurrentScreen({ weather, location, t }) {
 								}}
 							>
 								{" " +
-									calculatePTI({
-										temperature: weather.daily[0].temp.min - 273.15,
+									calculatePTIOWM({
+										temp: weather.daily[0].temp.min,
+										feels_like: weather.daily[0].feels_like.min,
 										humidity: weather.daily[0].humidity,
-										windSpeed: weather.daily[0].wind_speed,
+										wind_speed: weather.daily[0].wind_speed,
 									}).toFixed(1) +
 									" " +
 									t("pti") +
@@ -200,10 +156,11 @@ export default function CurrentScreen({ weather, location, t }) {
 								}}
 							>
 								{" " +
-									calculatePTI({
-										temperature: weather.daily[0].temp.max - 273.15,
+									calculatePTIOWM({
+										temp: weather.daily[0].temp.max,
+										feels_like: weather.daily[0].feels_like.max,
 										humidity: weather.daily[0].humidity,
-										windSpeed: weather.daily[0].wind_speed,
+										wind_speed: weather.daily[0].wind_speed,
 									}).toFixed(1) +
 									" " +
 									t("pti") +

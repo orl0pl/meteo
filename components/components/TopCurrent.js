@@ -3,7 +3,7 @@ import { View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import moment from "moment";
 import { Text } from "react-native-paper";
-import { calculatePTI } from "../utils/PTI";
+import { calculatePTI, calculatePTIOWM } from "../utils/PTI";
 function TopCurrent({ weather, theme, weatherIcon, weatherIconColor, t }) {
     const [rainTimeString, setRainTimeString] = useState("");
     useEffect(() => {
@@ -76,9 +76,7 @@ function TopCurrent({ weather, theme, weatherIcon, weatherIconColor, t }) {
                     <Text variant="headlineMedium">
                         {
                             //weather.current.temp - 273.15 > 1 || weather.current.temp - 273.15 < -1 ? (weather.current.temp.toFixed(0) - 273.15).toFixed(0) : (weather.current.temp - 273.15).toFixed(2)
-                            calculatePTI({
-                                temperature: weather.current.temp - 273.15,
-                            }).toFixed(1)
+                            calculatePTIOWM(weather.current).toFixed(1)
                         }{" "}
                         {t("pti")}
                     </Text>

@@ -14,7 +14,8 @@ import HourlyScreen from "./components/HourlyScreen";
 import * as Location from "expo-location";
 import axios from "axios";
 import * as Localization from 'expo-localization';
-import i18next from 'i18next';
+import i18next, { t } from 'i18next';
+import API_KEY from './API_KEY';
 const pl = require('./components/utils/pl.json');
 const en = require('./components/utils/en.json');
 i18next.init({
@@ -41,7 +42,6 @@ export default function App() {
 	const [weather, setWeather] = useState({});
 	const [search, setSearch] = useState("");
 	const [language, setLanguage] = useState("en");
-	const API_KEY = "8bf38ea1cc24c809acd8484cf88ad776";
 	function useI18n() {
 		const language = useSelector(store => store.language);
 	  
@@ -87,7 +87,7 @@ export default function App() {
 		console.log(mode);
 		if (mode === "location") {
 			getAndSetLocation();
-
+			
 		} else if (mode === "city") {
 			ToastAndroid.show("Searching city: "+search, ToastAndroid.SHORT);
 			fetch(
@@ -208,7 +208,7 @@ export default function App() {
 					/>
 					<Tab.Screen
 						name={i18next.t('navigation.hourly')}
-						children={() => <HourlyScreen weather={weather} theme={theme} />}
+						children={() => <HourlyScreen t={t} weather={weather} theme={theme} />}
 						options={{
 							tabBarLabel: i18next.t('navigation.hourly'),
 							tabBarIcon: ({ color, size }) => (

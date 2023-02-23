@@ -7,7 +7,7 @@
             "badWeather": "Nie będzie padać przez 2 dni."
         },
         "pti": "PT",
-        "search": "Search city...",
+        "search": "Zdajdź miasto...",
         "title": {
             "rain": "Deszcz",
             "today_and_tommorow": "Dzisiaj i jutro",
@@ -37,6 +37,10 @@
             "current": "Teraz",
             "hourly": "Godzinowo",
             "daily": "Dziennie"
+        },
+        "hourly": {
+            "today": "Dzisiaj",
+            "tomorrow": "Jutro"
         }
     }
 }

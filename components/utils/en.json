@@ -37,6 +37,10 @@
             "current": "Current",
             "hourly": "Hourly",
             "daily": "Daily"
+        },
+        "hourly": {
+            "today": "Today",
+            "tomorrow": "Tomorrow"
         }
     }
 }
