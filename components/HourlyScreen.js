@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, ScrollView, StyleSheet } from "react-native";
+import { View, ScrollView, StyleSheet, FlatList, TouchableWithoutFeedback } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import iconMap from "./iconMap";
 import { Text, ActivityIndicator, Divider, MD3LightTheme } from "react-native-paper";
@@ -12,7 +12,7 @@ import HourlyElement from "./components/HourlyElement";
 import * as Localization from "expo-localization";
 import { RainComponent, UmbrellaIconReactive } from "./components/Bars";
 //TODO: Add weather alerts
-moment.locale(Localization.locale.slice(0,2));
+moment.locale(Localization.locale.slice(0, 2));
 
 export default function HourlyScreen({ weather, location, t }) {
 	//const theme = useTheme();
@@ -25,7 +25,6 @@ export default function HourlyScreen({ weather, location, t }) {
 	);
 	useEffect(() => {
 		if (weather !== {} && weather.current !== undefined) {
-			console.log(weatherIcon);
 			setWeatherIcon(
 				iconMap[weather.current.weather[0].icon].icon !== undefined
 					? iconMap[weather.current.weather[0].icon].icon
@@ -37,28 +36,24 @@ export default function HourlyScreen({ weather, location, t }) {
 						? iconMap[weather.current.weather[0].icon].color_dark
 						: "00FFFF"
 					: iconMap[weather.current.weather[0].icon].color !== undefined
-					? iconMap[weather.current.weather[0].icon].color
-					: "#FF0000"
+						? iconMap[weather.current.weather[0].icon].color
+						: "#FF0000"
 			);
 		}
 	});
 
 	return weather.hourly !== undefined ? (
-		<ScrollView
-			style={{
+		//<TouchableWithoutFeedback>
+			<FlatList style={{
 				padding: 8,
 				backgroundColor: theme.colors.background,
 				display: "flex",
 				marginBottom: 16,
-			}}
-		>
-			{
-                weather.hourly.map((x, index) => {
-                    
-                    return <HourlyElement x={x} key={index} theme={theme} t={t} />
-                })
-            }
-		</ScrollView>
+			}} data={weather.hourly} keyExtractor={(item) => item.dt.toString()} renderItem={({ item }) => {
+				return <HourlyElement x={item} theme={theme} t={t} />
+			}} />
+		//</TouchableWithoutFeedback>
+
 	) : (
 		<View
 			style={{

@@ -83,6 +83,28 @@ export default function App() {
 		
 		
 	};
+	const getLocationFromCity = () => {
+		fetch(
+			`http://api.openweathermap.org/geo/1.0/direct?q=${search}&limit=1&appid=${API_KEY}`
+		)
+			.then((response) => response.json())
+			.then((data) => {
+				setLocation({
+					coords: {
+						latitude: data[0].lat,
+						longitude: data[0].lon,
+					},
+				});
+			});
+	}
+	function submintEdit(){
+		const text = search.trim();
+		console.log(text);
+		if(text.length > 0){
+			getLocationFromCity()
+			updateWeather()
+		}
+	}
 	useEffect(() => {
 		console.log(mode);
 		if (mode === "location") {
@@ -90,20 +112,9 @@ export default function App() {
 			
 		} else if (mode === "city") {
 			ToastAndroid.show("Searching city: "+search, ToastAndroid.SHORT);
-			fetch(
-				`http://api.openweathermap.org/geo/1.0/direct?q=${search}&limit=1&appid=${API_KEY}`
-			)
-				.then((response) => response.json())
-				.then((data) => {
-					setLocation({
-						coords: {
-							latitude: data[0].lat,
-							longitude: data[0].lon,
-						},
-					});
-				});
+			getLocationFromCity();
 			Storage.setItem({
-				key: `weather`,
+				key: `location`,
 				time: Date.now(),
 				value: JSON.stringify(location)
 			})
@@ -133,6 +144,9 @@ export default function App() {
 	const theme = {
 		...MD3LightTheme,
 	};
+	{
+		//TODO: FIX PERFORMANCE!!!
+	}
 	return (
 		<Provider theme={theme}>
 			<NavigationContainer theme={theme} >
@@ -153,7 +167,9 @@ export default function App() {
 							onChangeText={(text) => setSearch(text)}
 							value={search}
 							elevation={0}
-							onSubmitEditing={(text) => text.length > 0 && setMode("city")}
+							//onSubmitEditing={submintEdit()}
+							//onEndEditing={submintEdit()}
+							
 							style={{ flex: 1, backgroundColor: theme.colors.primaryContainer }}
 						/>
 						<View
@@ -221,8 +237,8 @@ export default function App() {
 						}}
 					/>
 					<Tab.Screen
-						name={i18next.t('pti')}
-						children={() => <DailyScreen weather={weather} theme={theme} />}
+						name={i18next.t('navigation.daily')}
+						children={() => <DailyScreen t={t} weather={weather} theme={theme} />}
 						options={{
 							tabBarLabel: i18next.t('navigation.daily'),
 							tabBarIcon: ({ color, size }) => (
