@@ -14,7 +14,8 @@
             "current_parameters": "Aktualne parametry",
             "searching_city": "Wyszukiwanie miasta: ",
             "updated": "Zaaktualizowano {{time}} używając OpenWeatherMap API",
-            "location": "Lokalizacja: {{lat}}°N, {{lon}}°E"
+            "location": "Lokalizacja: {{lat}}°N, {{lon}}°E",
+            "home": "Dom"
         },
         "parameters": {
             "wind": "Wiatr",
@@ -41,6 +42,16 @@
         "hourly": {
             "today": "Dzisiaj",
             "tomorrow": "Jutro"
+        },
+        "setup": {
+            "title": "Proszę podać klucz API",
+            "message": "Klucz API możesz znaleźć na stronie https://openweathermap.org/appid",
+            "button": "Ustaw klucz API",
+            "input": "Wprowadź klucz API",
+            "alt_button": "Użyj mojego klucza (może nie działać)"
+        },
+        "error": {
+            "401": "Błędny klucz API"
         }
     }
 }

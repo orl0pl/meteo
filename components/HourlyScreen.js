@@ -49,7 +49,9 @@ export default function HourlyScreen({ weather, location, t }) {
 				backgroundColor: theme.colors.background,
 				display: "flex",
 				marginBottom: 16,
-			}} data={weather.hourly} keyExtractor={(item) => item.dt.toString()} renderItem={({ item }) => {
+			}} initialNumToRender={3}
+		
+			 data={weather.hourly} keyExtractor={(item) => item.dt.toString()} renderItem={({ item }) => {
 				return <HourlyElement x={item} theme={theme} t={t} />
 			}} />
 		//</TouchableWithoutFeedback>

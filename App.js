@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { View, ToastAndroid } from "react-native";
+import { View, ToastAndroid, Linking } from "react-native";
+import { Text, TextInput, Button, ActivityIndicator, Chip } from "react-native-paper"
 import { createMaterialBottomTabNavigator as createBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -15,48 +16,190 @@ import * as Location from "expo-location";
 import axios from "axios";
 import * as Localization from 'expo-localization';
 import i18next, { t } from 'i18next';
-import API_KEY from './API_KEY';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+const storeData = async (key, value) => {
+	try {
+		await AsyncStorage.setItem(key, value)
+	} catch (e) {
+		// saving error
+		console.error(e);
+	}
+}
+
+const getData = async (key) => {
+	try {
+		const value = await AsyncStorage.getItem(key)
+		if (value !== null) {
+			return value;
+			// value previously stored
+		}
+	} catch (e) {
+		// error reading value
+		console.error(e);
+	}
+}
+//import API_KEY from './API_KEY';
+//const API_KEY = `d227dfc5a0b57b3cfb0d207ae15f207b`
+const key = `8bf38ea1cc24c809acd8484cf88ad776`;
 const pl = require('./components/utils/pl.json');
 const en = require('./components/utils/en.json');
 i18next.init({
 	compatibilityJSON: 'v3',
 	lng: Localization.locale,
 	fallbackLng: 'en', // if you're using a language detector, do not define the lng option
-	debug: true,
+	debug: false,
 	resources: {
-	  en: en,
-	  pl: pl
+		en: en,
+		pl: pl
 	}
-  });
+});
 
 //i18next.locale = Localization.locale.slice(0, 2);
 console.log(Localization.locale);
-//TODO: Hourly and Daily screens
+//TODO: ERROR Screen
 const Tab = createBottomTabNavigator();
+function SetupScreen({ theme, setSetUp, t, setAPI_KEY, setUp, error, ...props }) {
+	const [providedKey, setProvidedKey] = useState('');
+	function setEverything(type) {
+		if (type === 'normal') {
+			fetch('https://api.openweathermap.org/data/2.5/weather?q=London,uk&appid=' + key + '&units=metric').then(response => response.json()).then(data => {
+				if (data.cod === 401) {
+					ToastAndroid.show(t('error.401'), ToastAndroid.SHORT);
+				}
+				else if (data.cod === 200) {
+					storeData('key', providedKey);
+					storeData('setup', 'true');
+					setAPI_KEY(providedKey);
+					setSetUp(true);
+				}
+			})
 
+		}
+		else if (type === 'alt') {
+			ToastAndroid.show(':(', ToastAndroid.SHORT);
+			setSetUp(true)
+		}
+	}
+	return (
+		<View style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 8, paddingTop: 24 }}>
+			<MaterialCommunityIcons style={{
+				marginTop: 32,
+				flex: 0
+			}} name="key" size={64} color={theme.colors.tertiary} />
+			<Text style={{
+				flex: 1,
+				textAlign: "center",
+				textAlignVertical: "center"
+			}} variant="titleLarge">{t('setup.title')}</Text>
+			<Text style={{
+				flex: 1,
+				textAlign: "center",
+				textAlignVertical: "center"
+			}} onPress={() => Linking.openURL('https://openweathermap.org/appid')}>
+				{t('setup.message')}
+			</Text>
+			<View style={{ flex: 2, justifyContent: "center", alignItems: "center" }}>
+				<TextInput onChangeText={x => setProvidedKey(x)} mode="outlined" placeholder={t('setup.input')} />
+				<Button mode="contained" onPress={() => setEverything('normal')} style={{
+					marginTop: 16,
+					marginBottom: 8,
+					width: "100%",
+				}}>{t('setup.button')}</Button>
+				<Button mode="outlined" onPress={() => setEverything('alt')} style={{
+					width: "100%",
+				}}>{t('setup.alt_button')}</Button>
+			</View>
+		</View>)
+}
 export default function App() {
-	
+
 	const [location, setLocation] = useState(null);
 	const [mode, setMode] = useState("location");
 	const [errorMessage, setErrorMessage] = useState(null);
 	const [weather, setWeather] = useState({});
 	const [search, setSearch] = useState("");
 	const [language, setLanguage] = useState("en");
+	const [API_KEY, setAPI_KEY] = useState(key);
+	const [setUp, setSetUp] = useState(true);
+
+
+	const [home, setHome] = useState(null);
+	const [error, setError] = useState(null);
+	const [errorCode, setErrorCode] = useState('loading');
+	useEffect(() => {
+		// Load the API key from local storage or database
+		//storeData('key', API_KEY);
+		setSetUp(getData('setup').then(x => {
+			setSetUp(x === 'true');
+		}))
+		console.log('=-=--==-', getData('setup'));
+		if (setUp == false) {
+			setErrorCode(401)
+		}
+		getData('key').then(x => { key !== undefined && setAPI_KEY(x) });
+	}, []);
 	function useI18n() {
 		const language = useSelector(store => store.language);
-	  
+
 		return (text) => I18n.t(text, language);
-	  }
-	
+	}
+	const useHomeLocation = () => {
+		getData('home').then(savedHome => {
+			console.log('------------')
+			//console.log(JSON.parse(savedHome).coords);
+			console.log('------------')
+			if (savedHome !== undefined) {
+				//console.log(savedHome);
+				var parsed = JSON.parse(savedHome)
+				//setHome(parsed);
+				
+				if (home == null) {
+					ToastAndroid.show('Brak domu')
+					if (location.coords !== null) {
+						setHome(location);
+						storeData('home', JSON.stringify(location));
+						//AsyncStorage.setItem('home', JSON.stringify(location));
+					}
+				}
+				else if (home !== null && home.coords !== undefined) {
+					setLocation(home);
+				}
+			}
+			else {
+				ToastAndroid.show('Brak domu')
+				if (location !== null) {
+					setHome(location);
+					storeData('home', JSON.stringify(location));
+					//AsyncStorage.setItem('home', JSON.stringify(location));
+				}
+			}
+		})
+	}
 	const updateWeather = async () => {
-		//console.log(`https://api.openweathermap.org/data/2.5/onecall?lat=${location.coords.latitude}&lon=${location.coords.longitude}&appid=${API_KEY}`)
-		axios
-			.get(
-				`https://api.openweathermap.org/data/2.5/onecall?lat=${location.coords.latitude}&lon=${location.coords.longitude}&lang=${Localization.locale.slice(0,2)}&appid=${API_KEY}`
-			)
-			.then((response) => setWeather(response.data))
-			.catch((error) => console.log(error));
-		//setWeather(exampleResponse);
+		console.log(`https://api.openweathermap.org/data/2.5/onecall?lat=${location.coords.latitude}&lon=${location.coords.longitude}&appid=${API_KEY}`)
+		fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${location.coords.latitude}&lon=${location.coords.longitude}&lang=${Localization.locale.slice(0, 2)}&appid=${API_KEY}`)
+			.then((response) => {
+				console.log(response.status);
+				if (response.status === 401) {
+					setSetUp(false);
+					setErrorCode(401)
+					setError(t('error.401'));
+				}
+				else if (response.status === 404) {
+					setSetUp(true);
+
+					ToastAndroid.show(t('error.404'), ToastAndroid.SHORT);
+				}
+				else if (response.status === 429) {
+					ToastAndroid.show(t('error.429'), ToastAndroid.SHORT);
+				}
+				else if (response.status === 200) {
+					setSetUp(true);
+					response.json().then(x => setWeather(x))
+
+				}
+
+			})
 		await Storage.setItem({
 			key: `weather`,
 			time: Date.now(),
@@ -66,13 +209,13 @@ export default function App() {
 	const getAndSetLocation = async () => {
 		let { status } = await Location.requestForegroundPermissionsAsync();
 		if (status !== "granted") {
-			setErrorMessage("Permission to access location was denied");
+			setError("Permission to access location was denied");
 			return;
 		}
 
-		let location = await Location.getCurrentPositionAsync({});
+		let location = await Location.getLastKnownPositionAsync();
 		console.log(location);
-		if(location.coords !== undefined) {
+		if (location.coords !== undefined) {
 			await Storage.setItem({
 				key: `location`,
 				time: Date.now(),
@@ -80,8 +223,8 @@ export default function App() {
 			})
 			setLocation(location);
 		}
-		
-		
+
+
 	};
 	const getLocationFromCity = () => {
 		fetch(
@@ -89,18 +232,27 @@ export default function App() {
 		)
 			.then((response) => response.json())
 			.then((data) => {
-				setLocation({
-					coords: {
-						latitude: data[0].lat,
-						longitude: data[0].lon,
-					},
-				});
+				console.log(data);
+				if (data.cod === 401) {
+					setSetUp(false);
+					setError(t('error.401'));
+					ToastAndroid.show(t('error.401'), ToastAndroid.SHORT);
+				}
+				else if (data[0] !== undefined) {
+					setLocation({
+						coords: {
+							latitude: data[0].lat,
+							longitude: data[0].lon,
+						},
+					});
+				}
+
 			});
 	}
-	function submintEdit(){
+	function submintEdit() {
 		const text = search.trim();
 		console.log(text);
-		if(text.length > 0){
+		if (text.length > 0) {
 			getLocationFromCity()
 			updateWeather()
 		}
@@ -109,9 +261,9 @@ export default function App() {
 		console.log(mode);
 		if (mode === "location") {
 			getAndSetLocation();
-			
+
 		} else if (mode === "city") {
-			ToastAndroid.show("Searching city: "+search, ToastAndroid.SHORT);
+			ToastAndroid.show("Searching city: " + search, ToastAndroid.SHORT);
 			getLocationFromCity();
 			Storage.setItem({
 				key: `location`,
@@ -122,25 +274,29 @@ export default function App() {
 	}, [mode]);
 
 	useEffect(() => {
-		if (location !== null && typeof location == 'object') {
+		console.log(location)
+		if (location !== null && location.coords !== undefined) {
 			updateWeather();
 		}
-		else if(location == null){
-			const item = Storage.getItem({ key: `location` })
-			if (item.coords !== undefined) {
-				setLocation(item)
-				ToastAndroid.show("Using old location", ToastAndroid.SHORT);
-			}
-			else {
-				getAndSetLocation();
-				ToastAndroid.show("Location not found", ToastAndroid.SHORT);
-			}
-			console.log("storage",item)
+		else if (location == null) {
+			Storage.getItem({ key: `location` }).then(item => {
+				console.log("storage", item)
+				if (item !== null) {
+					setLocation(item)
+					ToastAndroid.show("Using old location", ToastAndroid.SHORT);
+				}
+				else {
+					getAndSetLocation();
+					ToastAndroid.show("Location not found", ToastAndroid.SHORT);
+				}
+
+			})
+
 		}
-		console.log(location)
+
 	}, [location]);
 	//const theme = useTheme();
-	
+
 	const theme = {
 		...MD3LightTheme,
 	};
@@ -149,12 +305,14 @@ export default function App() {
 	}
 	return (
 		<Provider theme={theme}>
-			<NavigationContainer theme={theme} >
+			{(setUp == null || setUp == true) ? <NavigationContainer theme={theme} >
 				<View style={{ backgroundColor: theme.colors.background }}>
+
 					<View
 						style={{
 							display: "flex",
 							margin: 8,
+							marginBottom: 0,
 							marginTop: 24,
 							flexDirection: "row",
 							overflow: "hidden",
@@ -169,7 +327,7 @@ export default function App() {
 							elevation={0}
 							//onSubmitEditing={submintEdit()}
 							//onEndEditing={submintEdit()}
-							
+
 							style={{ flex: 1, backgroundColor: theme.colors.primaryContainer }}
 						/>
 						<View
@@ -188,7 +346,7 @@ export default function App() {
 							}}
 						>
 							<MaterialCommunityIcons
-								name={mode === "location" ? "crosshairs-gps" : "map-marker-circle"}
+								name={mode === "location" ? "crosshairs-gps" : (mode === "home" ? "home" : "map-marker-circle")}
 								color={
 									mode === "location"
 										? theme.colors.onPrimary
@@ -205,12 +363,14 @@ export default function App() {
 							/>
 						</View>
 					</View>
+
+
 				</View>
 
 				<Tab.Navigator>
 					<Tab.Screen
 						name={i18next.t('navigation.current')}
-						children={() => <CurrentScreen t={i18next.t} location={location} weather={weather} theme={theme} />}
+						children={() => <CurrentScreen useHomeLocation={useHomeLocation} setHome={setHome} t={i18next.t} location={location} weather={weather} theme={theme} />}
 						options={{
 							tabBarLabel: i18next.t('navigation.current'),
 							tabBarIcon: ({ color, size }) => (
@@ -247,7 +407,21 @@ export default function App() {
 						}}
 					/>
 				</Tab.Navigator>
-			</NavigationContainer>
+			</NavigationContainer> :
+				(errorCode !== 'loading' ? <SetupScreen error={error} theme={theme} t={t} setSetUp={setSetUp} setUp={setUp} setAPI_KEY={setAPI_KEY} /> : <View
+					style={{
+						display: "flex",
+						flex: 1,
+						alignContent: "center",
+						justifyContent: "center",
+					}}
+				>
+					<ActivityIndicator size="large" color={theme.colors.primary} />
+				</View>)
+			}
+
+			{//<Button onPress={()=>{useHomeLocation()}}>Reset</Button>
+}
 		</Provider>
 	);
 }

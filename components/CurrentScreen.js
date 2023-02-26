@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, ScrollView, StyleSheet } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import iconMap from "./iconMap";
-import { Text, ActivityIndicator, Divider, MD3LightTheme } from "react-native-paper";
+import { Text, ActivityIndicator, Divider, MD3LightTheme, Button } from "react-native-paper";
 import { calculatePTI, calculatePTIOWM } from "./utils/PTI";
 import TopCurrent from "./components/TopCurrent";
 import { FlexiCard } from "./components/Cards";
@@ -13,11 +13,12 @@ import { RainComponent, UmbrellaIconReactive } from "./components/Bars";
 //TODO: Add weather alerts
 moment.locale(Localization.locale.slice(0, 2));
 
-export default function CurrentScreen({ weather, location, t }) {
+export default function CurrentScreen({ weather, useHomeLocation, location, t, setHome }) {
 	//const theme = useTheme();
 	const theme = {
 		...MD3LightTheme,
 	};
+	
 	const [weatherIcon, setWeatherIcon] = useState("help");
 	const [weatherIconColor, setWeatherIconColor] = useState(
 		theme.dark ? iconMap["01d"].color_dark : iconMap["01d"].color
@@ -25,6 +26,7 @@ export default function CurrentScreen({ weather, location, t }) {
 	useEffect(() => {
 		if (weather !== {} && weather.current !== undefined) {
 			console.log(weatherIcon);
+			//weather.current.rain['1h'] ? weather.current.rain['1h'] : weather.current.rain['1h'] = 0;
 			setWeatherIcon(
 				iconMap[weather.current.weather[0].icon].icon !== undefined
 					? iconMap[weather.current.weather[0].icon].icon
@@ -50,7 +52,7 @@ export default function CurrentScreen({ weather, location, t }) {
 				display: "flex",
 			}}
 		>
-			<View style={[styles.border, { display: "flex", flex: 1, flexDirection: "column" }]}>
+			<View style={[styles.border, { display: "flex", flex: 1, flexDirection: "column", marginBottom: 16 }]}>
 				<TopCurrent
 					weather={weather}
 					weatherIcon={weatherIcon}
@@ -482,14 +484,15 @@ export default function CurrentScreen({ weather, location, t }) {
 					{t("title.updated", { time: moment(weather.current.dt * 1000).fromNow() })}
 				</Text>
 				<Text variant="bodyMedium" style={{ marginBottom: 16, marginHorizontal: 16 }}>
+					{console.log('==>',location.coords)}
 					{t("title.location", { lat: location.coords.latitude, lon: location.coords.longitude })}
 				</Text>
+				<View style={{ marginBottom: 16, marginHorizontal: 16, display: 'flex', flexDirection: 'row'}}>
+					<Button icon="key-remove" style={{flex: 1, marginRight: 4}} buttonColor={theme.colors.error} mode="contained">Reset API Key</Button>
+					<Button icon="home" onPress={()=>{useHomeLocation()}} style={{flex: 1}} mode="contained">Set as home</Button>
+				</View>
 			</View>
-			<Text>
-				{
-					//JSON.stringify(weather, null, 2)
-				}
-			</Text>
+			
 		</ScrollView>
 	) : (
 		<View
@@ -501,6 +504,7 @@ export default function CurrentScreen({ weather, location, t }) {
 			}}
 		>
 			<ActivityIndicator size="large" color={theme.colors.primary} />
+			<Text>{JSON.stringify(weather)}</Text>
 		</View>
 	);
 }

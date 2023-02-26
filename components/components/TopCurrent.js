@@ -6,7 +6,14 @@ import { Text } from "react-native-paper";
 import { calculatePTI, calculatePTIOWM } from "../utils/PTI";
 function TopCurrent({ weather, theme, weatherIcon, weatherIconColor, t }) {
     const [rainTimeString, setRainTimeString] = useState("");
+    //weather.current.rain['1h'] = (typeof x === 'undefined') ? 0 : weather.current.rain['1h'];
+    if(typeof weather.current.rain === 'undefined'){
+        weather.current.rain = {};
+        weather.current.rain['1h'] = 0;
+    }
+    //weather.current.rain['1h'] !== undefined ? weather.current.rain['1h'] : weather.current.rain['1h'] = 0;
     useEffect(() => {
+        
         var seconds = weather.minutely.find((x) => x.precipitation > 0.1)
             ? weather.minutely.find((x) => x.precipitation > 0.1).dt
             : weather.hourly.find((x) => x.precipitation > 0.1)
@@ -51,7 +58,7 @@ function TopCurrent({ weather, theme, weatherIcon, weatherIconColor, t }) {
                             // Partly cloudy \n rain in 20 min
                         }
                         {weather.minutely.find((x) => x.precipitation > 0.1)
-                            ? weather.current.rain["1h"] > 0
+                            ? (weather.current.rain["1h"]) > 0
                                 ? t("secondmessage.raining")
                                 : t("secondmessage.itwillrain", {time: rainTimeString})
                             : weather.hourly.find((x) => x.precipitation > 0.1)

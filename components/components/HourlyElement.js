@@ -36,7 +36,7 @@ function CustomChip({
                 borderRadius: theme.roundness * 2,
                 backgroundColor: backgroundColor,
                 padding: theme.roundness,
-
+                margin: theme.roundness / 2,
             }}
         >
             <MaterialCommunityIcons
@@ -47,13 +47,14 @@ function CustomChip({
                     transform: [{ rotate: `${rotaition}deg` }],
                 }}
             />
-            <Gap size={2} />
+
             <Text variant="bodyMedium" style={{ color: textColor }}>{text}</Text>
         </View>
     );
 }
 export default function HourlyElement({ x, t }) {
     const m = moment(x.dt * 1000);
+    const [details, showDetails] = useState(false);
     return (
         <View
             style={{
@@ -78,7 +79,7 @@ export default function HourlyElement({ x, t }) {
                     flexDirection: "row",
                 }}
             >
-                
+
                 <MaterialCommunityIcons
                     name={iconMap[x.weather[0].icon].icon}
                     size={64}
@@ -138,10 +139,20 @@ export default function HourlyElement({ x, t }) {
                     </View>
                 </View>
             </View>
-            <Text variant="bodyMedium" style={{ marginVertical: 4 }}>
-                {x.weather[0].description}
-            </Text>
-            <ScrollView
+            <View style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignContent: "center",
+                paddingVertical: 4,
+            }}>
+                <Text variant="bodyMedium" style={{  }}>
+                    {x.weather[0].description}
+                </Text>
+                <MaterialCommunityIcons onPress={() => { showDetails(!details) }} color={theme.colors.tertiary} name={details ? "chevron-up" : "chevron-down"} size={24}/>
+            </View>
+
+            {details && <View
                 horizontal={true}
                 style={{
                     display: "flex",
@@ -150,6 +161,7 @@ export default function HourlyElement({ x, t }) {
                     columnGap: 16,
                     gap: 16,
                     flex: 1,
+                    flexWrap: "wrap",
                 }}
             >
                 {x.rain !== undefined ? (
@@ -161,7 +173,7 @@ export default function HourlyElement({ x, t }) {
                             icon="water"
                             text={x.rain["1h"].toFixed(1) + "mm"}
                         />
-                        <Gap size={4} />
+
                     </>
                 ) : null}
                 {x.snow !== undefined ? (
@@ -173,7 +185,7 @@ export default function HourlyElement({ x, t }) {
                             icon="snowflake"
                             text={x.snow["1h"].toFixed(1) + "mm"}
                         />
-                        <Gap size={4} />
+
                     </>
                 ) : null}
                 {x.uvi > 6 && (
@@ -185,31 +197,31 @@ export default function HourlyElement({ x, t }) {
                             icon="weather-sunny-alert"
                             text={x.uvi}
                         />
-                        <Gap size={4} />
+
                     </>
                 )}
                 <CustomChip icon="thermometer" text={(x.temp - 273.15).toFixed(1) + "°"} />
-                <Gap size={4} />
+
                 <CustomChip
                     rotaition={x.wind_deg}
                     icon="navigation"
                     text={x.wind_speed.toFixed(1) + " m/s"}
                 />
-                <Gap size={4} />
+
                 <CustomChip icon="weather-windy" text={x.wind_gust.toFixed(1) + " m/s"} />
-                <Gap size={4} />
+
                 <CustomChip icon="thermometer-plus" text={(x.feels_like - 273.15).toFixed(1) + "°"} />
-                <Gap size={4} />
+
                 <CustomChip icon="gauge" text={x.pressure.toFixed(1) + " hPa"} />
-                <Gap size={4} />
+
                 <CustomChip icon="water-percent" text={x.humidity.toFixed(1) + "%"} />
-                <Gap size={4} />
+
                 <CustomChip icon="water-outline" text={(x.dew_point - 273.15).toFixed(1) + "°"} />
-                <Gap size={4} />
+
                 {!(x.uvi > 6) && (
                     <>
                         <CustomChip icon="sun-wireless" text={x.uvi.toFixed(1) + ""} />
-                        <Gap size={4} />
+
                     </>
                 )}
                 <CustomChip
@@ -220,8 +232,8 @@ export default function HourlyElement({ x, t }) {
                             : t("parameters.goodView")
                     }
                 />
-            </ScrollView>
-
+            </View>
+            }
             {
                 //tutaj chipsy
             }
