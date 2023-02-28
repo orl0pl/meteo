@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, ScrollView, StyleSheet } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import iconMap from "./iconMap";
-import { Text, ActivityIndicator, Divider, MD3LightTheme, Button } from "react-native-paper";
+import { Text, ActivityIndicator, Divider, MD3LightTheme, Button, Chip } from "react-native-paper";
 import { calculatePTI, calculatePTIOWM } from "./utils/PTI";
 import TopCurrent from "./components/TopCurrent";
 import { FlexiCard } from "./components/Cards";
@@ -13,7 +13,7 @@ import { RainComponent, UmbrellaIconReactive } from "./components/Bars";
 //TODO: Add weather alerts
 moment.locale(Localization.locale.slice(0, 2));
 
-export default function CurrentScreen({ weather, useHomeLocation, location, t, setHome }) {
+export default function CurrentScreen({ weather, useHomeLocation, setAndSaveHomeLocation, location, t, setHome }) {
 	//const theme = useTheme();
 	const theme = {
 		...MD3LightTheme,
@@ -25,7 +25,7 @@ export default function CurrentScreen({ weather, useHomeLocation, location, t, s
 	);
 	useEffect(() => {
 		if (weather !== {} && weather.current !== undefined) {
-			console.log(weatherIcon);
+			//console.log(weatherIcon);
 			//weather.current.rain['1h'] ? weather.current.rain['1h'] : weather.current.rain['1h'] = 0;
 			setWeatherIcon(
 				iconMap[weather.current.weather[0].icon].icon !== undefined
@@ -52,7 +52,19 @@ export default function CurrentScreen({ weather, useHomeLocation, location, t, s
 				display: "flex",
 			}}
 		>
+
 			<View style={[styles.border, { display: "flex", flex: 1, flexDirection: "column", marginBottom: 16 }]}>
+			<View style={{
+				display: "flex",
+				flexDirection: "row",
+				margin: 16,
+				marginBottom: 0,
+			}}>
+				<Chip icon="home" onPress={()=>{useHomeLocation()}}>{t('title.home')}</Chip>
+				{
+					//TODO: Location list
+				}
+			</View>
 				<TopCurrent
 					weather={weather}
 					weatherIcon={weatherIcon}
@@ -411,14 +423,14 @@ export default function CurrentScreen({ weather, useHomeLocation, location, t, s
 							marginTop: 8,
 						}}
 					>
-						<FlexiCard
+						{ weather.current.wind_gust !== undefined && <FlexiCard
 							theme={theme}
 							label={t("parameters.wind_gust")}
 							unit=" m/s"
 							value={weather.current.wind_gust.toFixed(1)}
 							rotation={0}
 							icon="weather-windy"
-						/>
+						/>}
 						<FlexiCard
 							theme={theme}
 							label={t("parameters.humidity")}
@@ -484,12 +496,11 @@ export default function CurrentScreen({ weather, useHomeLocation, location, t, s
 					{t("title.updated", { time: moment(weather.current.dt * 1000).fromNow() })}
 				</Text>
 				<Text variant="bodyMedium" style={{ marginBottom: 16, marginHorizontal: 16 }}>
-					{console.log('==>',location.coords)}
 					{t("title.location", { lat: location.coords.latitude, lon: location.coords.longitude })}
 				</Text>
 				<View style={{ marginBottom: 16, marginHorizontal: 16, display: 'flex', flexDirection: 'row'}}>
 					<Button icon="key-remove" style={{flex: 1, marginRight: 4}} buttonColor={theme.colors.error} mode="contained">Reset API Key</Button>
-					<Button icon="home" onPress={()=>{useHomeLocation()}} style={{flex: 1}} mode="contained">Set as home</Button>
+					<Button icon="home" onPress={()=>{setAndSaveHomeLocation()}} style={{flex: 1}} mode="contained">Set as home</Button>
 				</View>
 			</View>
 			

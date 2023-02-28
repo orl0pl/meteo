@@ -13,7 +13,6 @@ import CurrentScreen from "./components/CurrentScreen";
 import DailyScreen from "./components/DailyScreen";
 import HourlyScreen from "./components/HourlyScreen";
 import * as Location from "expo-location";
-import axios from "axios";
 import * as Localization from 'expo-localization';
 import i18next, { t } from 'i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -55,7 +54,7 @@ i18next.init({
 });
 
 //i18next.locale = Localization.locale.slice(0, 2);
-console.log(Localization.locale);
+//console.log(Localization.locale);
 //TODO: ERROR Screen
 const Tab = createBottomTabNavigator();
 function SetupScreen({ theme, setSetUp, t, setAPI_KEY, setUp, error, ...props }) {
@@ -132,54 +131,45 @@ export default function App() {
 		setSetUp(getData('setup').then(x => {
 			setSetUp(x === 'true');
 		}))
-		console.log('=-=--==-', getData('setup'));
+		//console.log('=-=--==-', getData('setup'));
 		if (setUp == false) {
 			setErrorCode(401)
 		}
 		getData('key').then(x => { key !== undefined && setAPI_KEY(x) });
+		//useHomeLocation();
 	}, []);
-	function useI18n() {
-		const language = useSelector(store => store.language);
-
-		return (text) => I18n.t(text, language);
+	const setAndSaveHomeLocation = async () => {
+		const { status } = await Location.requestForegroundPermissionsAsync();
+		if (status !== 'granted') {
+			ToastAndroid.show(t('error.permission'), ToastAndroid.SHORT);
+			return;
+		}
+		const location = await Location.getCurrentPositionAsync({});
+		setLocation(location);
+		setHome(location);
+		storeData('home', JSON.stringify(location));
 	}
-	const useHomeLocation = () => {
-		getData('home').then(savedHome => {
-			console.log('------------')
-			//console.log(JSON.parse(savedHome).coords);
-			console.log('------------')
-			if (savedHome !== undefined) {
-				//console.log(savedHome);
-				var parsed = JSON.parse(savedHome)
-				//setHome(parsed);
-				
-				if (home == null) {
-					ToastAndroid.show('Brak domu')
-					if (location.coords !== null) {
-						setHome(location);
-						storeData('home', JSON.stringify(location));
-						//AsyncStorage.setItem('home', JSON.stringify(location));
-					}
-				}
-				else if (home !== null && home.coords !== undefined) {
-					setLocation(home);
-				}
+	const useHomeLocation = (use = true) => {
+		use ? getData('home').then(savedHome => {
+			//console.log("🏠",savedHome);
+			var parsedSaved = JSON.parse(savedHome);
+			if (parsedSaved !== null) {
+				setHome(parsedSaved);
+				setLocation(parsedSaved);
+				setSearch(t('title.home'))
 			}
-			else {
-				ToastAndroid.show('Brak domu')
-				if (location !== null) {
-					setHome(location);
-					storeData('home', JSON.stringify(location));
-					//AsyncStorage.setItem('home', JSON.stringify(location));
-				}
+			else if (home == null) {
+				ToastAndroid(t('error.home_not_found'), ToastAndroid.SHORT);
 			}
 		})
+		: getAndSetLocation();
+
+		setTimeout(()=>{updateWeather()}, 1000)
 	}
 	const updateWeather = async () => {
-		console.log(`https://api.openweathermap.org/data/2.5/onecall?lat=${location.coords.latitude}&lon=${location.coords.longitude}&appid=${API_KEY}`)
+		//console.log(`https://api.openweathermap.org/data/2.5/onecall?lat=${location.coords.latitude}&lon=${location.coords.longitude}&appid=${API_KEY}`)
 		fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${location.coords.latitude}&lon=${location.coords.longitude}&lang=${Localization.locale.slice(0, 2)}&appid=${API_KEY}`)
 			.then((response) => {
-				console.log(response.status);
 				if (response.status === 401) {
 					setSetUp(false);
 					setErrorCode(401)
@@ -209,12 +199,11 @@ export default function App() {
 	const getAndSetLocation = async () => {
 		let { status } = await Location.requestForegroundPermissionsAsync();
 		if (status !== "granted") {
-			setError("Permission to access location was denied");
+			setError(t('error.permission'));
 			return;
 		}
 
 		let location = await Location.getLastKnownPositionAsync();
-		console.log(location);
 		if (location.coords !== undefined) {
 			await Storage.setItem({
 				key: `location`,
@@ -232,7 +221,6 @@ export default function App() {
 		)
 			.then((response) => response.json())
 			.then((data) => {
-				console.log(data);
 				if (data.cod === 401) {
 					setSetUp(false);
 					setError(t('error.401'));
@@ -251,19 +239,20 @@ export default function App() {
 	}
 	function submintEdit() {
 		const text = search.trim();
-		console.log(text);
 		if (text.length > 0) {
 			getLocationFromCity()
 			updateWeather()
 		}
+		else {
+			ToastAndroid.show(t('error.search_to_short'), ToastAndroid.SHORT);
+		}
 	}
 	useEffect(() => {
-		console.log(mode);
 		if (mode === "location") {
 			getAndSetLocation();
 
 		} else if (mode === "city") {
-			ToastAndroid.show("Searching city: " + search, ToastAndroid.SHORT);
+			ToastAndroid.show(t('title.searching_city')+search, ToastAndroid.SHORT);
 			getLocationFromCity();
 			Storage.setItem({
 				key: `location`,
@@ -274,20 +263,18 @@ export default function App() {
 	}, [mode]);
 
 	useEffect(() => {
-		console.log(location)
 		if (location !== null && location.coords !== undefined) {
 			updateWeather();
 		}
 		else if (location == null) {
 			Storage.getItem({ key: `location` }).then(item => {
-				console.log("storage", item)
 				if (item !== null) {
 					setLocation(item)
-					ToastAndroid.show("Using old location", ToastAndroid.SHORT);
+					ToastAndroid.show(t('location.old'), ToastAndroid.SHORT);
 				}
 				else {
 					getAndSetLocation();
-					ToastAndroid.show("Location not found", ToastAndroid.SHORT);
+					ToastAndroid.show(t("location.not_found"), ToastAndroid.SHORT);
 				}
 
 			})
@@ -300,14 +287,10 @@ export default function App() {
 	const theme = {
 		...MD3LightTheme,
 	};
-	{
-		//TODO: FIX PERFORMANCE!!!
-	}
 	return (
 		<Provider theme={theme}>
 			{(setUp == null || setUp == true) ? <NavigationContainer theme={theme} >
-				<View style={{ backgroundColor: theme.colors.background }}>
-
+				<View style={{ backgroundColor: 'transparent', zIndex: 0 }}>
 					<View
 						style={{
 							display: "flex",
@@ -326,7 +309,7 @@ export default function App() {
 							value={search}
 							elevation={0}
 							//onSubmitEditing={submintEdit()}
-							//onEndEditing={submintEdit()}
+							onEndEditing={()=>{submintEdit()}}
 
 							style={{ flex: 1, backgroundColor: theme.colors.primaryContainer }}
 						/>
@@ -370,7 +353,7 @@ export default function App() {
 				<Tab.Navigator>
 					<Tab.Screen
 						name={i18next.t('navigation.current')}
-						children={() => <CurrentScreen useHomeLocation={useHomeLocation} setHome={setHome} t={i18next.t} location={location} weather={weather} theme={theme} />}
+						children={() => <CurrentScreen setAndSaveHomeLocation={setAndSaveHomeLocation} useHomeLocation={useHomeLocation} setHome={setHome} t={i18next.t} location={location} weather={weather} theme={theme} />}
 						options={{
 							tabBarLabel: i18next.t('navigation.current'),
 							tabBarIcon: ({ color, size }) => (
@@ -414,6 +397,7 @@ export default function App() {
 						flex: 1,
 						alignContent: "center",
 						justifyContent: "center",
+						alignItems: "center",
 					}}
 				>
 					<ActivityIndicator size="large" color={theme.colors.primary} />

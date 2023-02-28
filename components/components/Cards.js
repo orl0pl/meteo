@@ -18,6 +18,7 @@ function FlexiCard(props) {
 					flex: 1,
 					justifyContent: "center",
 					alignItems: "center",
+					alignContent: "center",
 					borderRadius: theme.roundness * 2,
 					padding: theme.roundness * 2,
 					
